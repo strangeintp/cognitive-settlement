@@ -22,8 +22,8 @@ COGNITIVE = 1
 agent_type = COGNITIVE
 #agent_type = COBBDOUGLAS
 heterogeneity = False
-importance_services_proximity = 1.0
-numtests = 20
+importance_services_proximity = 0.0
+numtests = 50
 
 def setAgentType(int_value = agent_type):
     global agent_type
@@ -81,7 +81,6 @@ class World(object):
                 self.envir[y, x] = qual
                 self.starting_quality += qual
         self.starting_quality /= (width*height)
-        print("Average starting quality is %f"%self.starting_quality)
         
         #diffuse
         for i in range(SMOOTHNESS):
@@ -266,8 +265,10 @@ def calculatePacking():
         num_neighbors.append(neighbors)
     return U.mean(num_neighbors)/8
 
-def calculateQuality():
-    return sum(map(sum, world.envir))/(width*height)
+def calculateQualityReduction():
+    avg_quality = sum(map(sum, world.envir))/(width*height)
+    reduction = (world.starting_quality - avg_quality)/world.starting_quality
+    return reduction
         
 import simgui        
 if __name__ == '__main__':
