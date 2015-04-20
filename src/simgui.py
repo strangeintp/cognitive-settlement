@@ -21,19 +21,23 @@ class SimGUI(object):
     '''
 
 
-    def __init__(self):
+    def __init__(self, psetters = None):
         self.funcs = [self.reset, self.draw, self.step]
         self.env_map = plt.get_cmap("YlGn")
         self.ag_map = plt.get_cmap("binary")
         self.srv_map = plt.get_cmap("Reds")
+        self.psetters = psetters
         
     def reset(self):
         self.world = abm.World()
         self.time = 0
+        self.packing = 0
             
     def step(self):
         self.time += 1
         self.world.step()
+        if self.time %10 == 0:
+            print("Average quality is %f"%abm.calculateQuality())
         
     def draw(self):
         PL.cla()
@@ -54,10 +58,17 @@ class SimGUI(object):
         PL.scatter(x, y, c = s, cmap = self.srv_map, vmin = 0, vmax = 1)
         
         PL.hold(False)
-        PL.title('t = ' + str(self.time))
+        time_string = 't = ' + str(self.time)
+        if self.time % 5 == 1:
+            self.packing = abm.calculatePacking()
+        pack_string = ", \t packing:  " + str(self.packing)
+        PL.title(time_string + pack_string)
         
     def run(self):
-        pycxsimulator.GUI().start(func=self.funcs)
+        if self.psetters:
+            pycxsimulator.GUI(parameterSetters = self.psetters).start(func=self.funcs)
+        else:
+            pycxsimulator.GUI().start(func=self.funcs)
         
 if __name__ == '__main__':
     sim = SimGUI()
