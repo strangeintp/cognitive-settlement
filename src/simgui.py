@@ -36,8 +36,6 @@ class SimGUI(object):
     def step(self):
         self.time += 1
         self.world.step()
-        if self.time %10 == 0:
-            print("Average quality is %f"%abm.calculateQuality())
         
     def draw(self):
         PL.cla()

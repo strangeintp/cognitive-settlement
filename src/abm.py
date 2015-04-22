@@ -19,6 +19,7 @@ residents_per_service = 50
 #agent types
 COBBDOUGLAS = 0
 COGNITIVE = 1
+COGNITIVE2 = 2
 agent_type = COGNITIVE
 #agent_type = COBBDOUGLAS
 heterogeneity = False
@@ -179,6 +180,8 @@ class Agent(object):
             self.CobbDouglasChoice()
         if agent_type == COGNITIVE:
             self.CognitiveChoice()
+        if agent_type == COGNITIVE2:
+            self.CognitiveChoice2()
             
     def CobbDouglasChoice(self):
         choices = {}  # a dictionary of candidate patches, with utility as value
@@ -197,9 +200,8 @@ class Agent(object):
             choices[eval_patch] = util
         choice = max(list(choices.keys()), key = lambda loc : choices[loc])
         self.x = choice.x
-        self.y = choice.y
-        
-        
+        self.y = choice.y  
+
     def CognitiveChoice(self):
         self.alpha_qua /= 2
         self.alpha_srv /= 2
@@ -208,9 +210,6 @@ class Agent(object):
         residence = None
         best_dist = dist_norm
         best_qual = 0
-        srv = RD.choice(world.services)
-        dx = 0
-        dy = 0
         for i in range(numtests):
             valid_location = False
             tries = 0
@@ -220,31 +219,57 @@ class Agent(object):
                 if 0<=x<width and 0<=y<height:
                     if world.isEmptyAt(x, y):
                         valid_location = True
-#                     srv = world.findClosestServiceTo(x,y)
-                    dist = ((srv.x-x)**2 + (srv.y-y)**2)**0.5
+            srv = world.findClosestServiceTo(x,y)
+            dist = ((srv.x-x)**2 + (srv.y-y)**2)**0.5
             eval_patch = world.patch_at[(x,y)]
             qual = eval_patch.quality            
-            if qual > best_qual and dist < best_dist:
+#             if qual > best_qual and dist < best_dist:
+#                 residence = eval_patch
+#                 best_qual = qual
+#                 best_dist = dist
+#             else:
+            if dist < best_dist and qual > self.alpha_qua*best_qual:
+                residence = eval_patch
+                best_dist = dist
+                best_qual = qual
+            if qual > best_qual and dist < (1-self.alpha_srv)*best_dist:
                 residence = eval_patch
                 best_qual = qual
                 best_dist = dist
-            else:
-                if dist < best_dist and qual > self.alpha_qua*best_qual:
-                    residence = eval_patch
-                    best_dist = dist
-                    best_qual = qual
-                if qual > best_qual and dist < (1-self.alpha_srv)*best_dist:
-                    residence = eval_patch
-                    best_qual = qual
-                    best_dist = dist
-            
-#             if 1/dist > self.alpha_srv and qual > self.alpha_qua:
-#                 break
+                
+        self.x = residence.x
+        self.y = residence.y
+        
+    def CognitiveChoice2(self):
+        self.alpha_qua /= 2
+        self.alpha_srv /= 2
+        residence = None
+        best_dist = dist_norm
+        best_qual = 0
+        srv = RD.choice(world.services)
+        for i in range(numtests):
+            valid_location = False
+            while not valid_location:
+                x = RD.randint(0, width-1)
+                y = RD.randint(0, height-1)
+                if 0<=x<width and 0<=y<height:
+                    if world.isEmptyAt(x, y):
+                        valid_location = True
+                    dist = ((srv.x-x)**2 + (srv.y-y)**2)**0.5
+            eval_patch = world.patch_at[(x,y)]
+            qual = eval_patch.quality
+            if dist < best_dist and qual > self.alpha_qua*best_qual:
+                residence = eval_patch
+                best_dist = dist
+                best_qual = qual
+            if qual > best_qual and dist < (1-self.alpha_srv)*best_dist:
+                residence = eval_patch
+                best_qual = qual
+                best_dist = dist
                 
         self.x = residence.x
         self.y = residence.y
                 
-        
 class Service(object):
     
     def __init__(self, x = int(width/2), y = int(height/2)):

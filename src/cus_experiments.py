@@ -64,13 +64,53 @@ class CUSExperiment(exp.Experiment):
         self.addOutput(abm.calculateQualityReduction, "reduction", "%1.4f")
 
 
+class CUSExperiment_Main(object):
+    
+    def __init__(self):
+        reps = 30
+        exp_name = "CUSExperiment_Main"
+        comments = "Sweep across services proximity importance"
+        values = {}
+        values[abm.setAgentType] = [abm.COBBDOUGLAS, abm.COGNITIVE]
+        values[abm.setHeterogeneity] = [False]
+        values[abm.setServicesImportance] = [0.2*i for i in range(11)]
+        CUSExperiment(values, reps, exp_name, comments).run()
+        
+class CUSExperiment_Detail(object):
+    
+    def __init__(self):
+        reps = 30
+        exp_name = "CUSExperiment_Detail"
+        comments = "Getting higher resolution between 0 and 0.5 for Cobb-Douglas agents."
+        values = {}
+        values[abm.setAgentType] = [abm.COBBDOUGLAS]
+        values[abm.setHeterogeneity] = [False]
+        values[abm.setServicesImportance] = [0.05*i for i in range(11)]
+        CUSExperiment(values, reps, exp_name, comments).run()
+        
+class CUSExperiment_Cog2(object):
+    
+    def __init__(self):
+        reps = 30
+        exp_name = "CUSExperiment_CogVariant"
+        comments = "Testing the Cognitive2 variant."
+        values = {}
+        values[abm.setAgentType] = [abm.COGNITIVE2]
+        values[abm.setHeterogeneity] = [False]
+        values[abm.setServicesImportance] = [0.2*i for i in range(11)]
+        CUSExperiment(values, reps, exp_name, comments).run()
+        
+class CUSExperiment_Hetero(object):
+    
+    def __init__(self):
+        reps = 30
+        exp_name = "CUSExperiment_Hetero"
+        comments = "Sweep across services proximity importance, using heterogeneous agents."
+        values = {}
+        values[abm.setAgentType] = [abm.COBBDOUGLAS, abm.COGNITIVE, abm.COGNITIVE2]
+        values[abm.setHeterogeneity] = [True]
+        values[abm.setServicesImportance] = [0.2*i for i in range(11)]
+        CUSExperiment(values, reps, exp_name, comments).run()
 
 if __name__ == '__main__':
-    reps = 30
-    exp_name = "CUSExperiment_Main"
-    comments = "Sweep across services proximity importance"
-    values = {}
-    values[abm.setAgentType] = [abm.COBBDOUGLAS, abm.COGNITIVE]
-    values[abm.setHeterogeneity] = [False]
-    values[abm.setServicesImportance] = [0.2*i for i in range(11)]
-    CUSExperiment(values, reps, exp_name, comments).run()        
+        CUSExperiment_Hetero()
